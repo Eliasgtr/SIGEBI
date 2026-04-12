@@ -1,18 +1,18 @@
 <Solution>
   <Folder Name="/API/">
-    <Project Path="src/Sigebi.Api/Sigebi.Api.csproj" />
+    <Project Path="Sigebi.Api/Sigebi.Api.csproj" />
   </Folder>
   <Folder Name="/Aplication/">
-    <Project Path="src/Sigebi.Application/Sigebi.Application.csproj" />
+    <Project Path="Sigebi.Application/Sigebi.Application.csproj" />
   </Folder>
   <Folder Name="/Domain/">
-    <Project Path="src/Sigebi.Domain/Sigebi.Domain.csproj" />
+    <Project Path="Sigebi.Domain/Sigebi.Domain.csproj" />
   </Folder>
   <Folder Name="/Infrastructure/">
-    <Project Path="src/Sigebi.Infrastructure/Sigebi.Infrastructure.csproj" />
+    <Project Path="Sigebi.Infrastructure/Sigebi.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Presentation/">
-    <Project Path="src/Sigebi.Desktop/Sigebi.Desktop.csproj" />
-    <Project Path="src/Sigebi.Web/Sigebi.Web.csproj" />
+    <Project Path="Sigebi.Desktop/Sigebi.Desktop.csproj" />
+    <Project Path="Sigebi.Web/Sigebi.Web.csproj" />
   </Folder>
 </Solution>
