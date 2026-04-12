@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Sigebi.Api/Sigebi.Api.csproj" />
+    <Project Path="src/Sigebi.Application/Sigebi.Application.csproj" />
+    <Project Path="src/Sigebi.Desktop/Sigebi.Desktop.csproj" />
+    <Project Path="src/Sigebi.Domain/Sigebi.Domain.csproj" />
+    <Project Path="src/Sigebi.Infrastructure/Sigebi.Infrastructure.csproj" />
+    <Project Path="src/Sigebi.Web/Sigebi.Web.csproj" />
+  </Folder>
+</Solution>

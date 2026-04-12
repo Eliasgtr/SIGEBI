@@ -1,0 +1,118 @@
+@page "/mis-prestamos"
+@rendermode InteractiveServer
+@inject SigebiApiClient Api
+
+<PageTitle>Mis préstamos</PageTitle>
+
+<h1>Mis préstamos activos</h1>
+<p class="text-muted">Selecciona tu usuario para ver ejemplares en préstamo y fechas de devolución.</p>
+
+<div class="row g-2 mb-3">
+    <div class="col-md-6">
+        <label class="form-label">Usuario</label>
+        <select class="form-select" @bind="selectedUserId" @bind:after="LoadLoansAsync">
+            @foreach (var u in users)
+            {
+                <option value="@u.Id">@u.FullName (@u.UserType)</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-6 d-flex align-items-end">
+        <button class="btn btn-outline-primary" @onclick="LoadLoansAsync" disabled="@isBusy">Actualizar</button>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(statusMessage))
+{
+    <div class="alert alert-danger">@statusMessage</div>
+}
+
+@if (isBusy)
+{
+    <p>Cargando…</p>
+}
+else if (loans.Count == 0)
+{
+    <p>No tienes préstamos activos.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Libro</th>
+                <th>Ejemplar</th>
+                <th>Inicio</th>
+                <th>Vence</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var loan in loans)
+            {
+                <tr class="@(loan.IsOverdue ? "table-danger" : string.Empty)">
+                    <td>@loan.BookTitle</td>
+                    <td>@loan.InventoryCode</td>
+                    <td>@loan.StartDate.ToLocalTime().ToString("d")</td>
+                    <td>@loan.DueDate.ToLocalTime().ToString("d")</td>
+                    <td>@(loan.IsOverdue ? "Vencido" : "Al corriente")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private readonly List<UserSummaryModel> users = new();
+    private readonly List<UserLoanModel> loans = new();
+    private int selectedUserId;
+    private string? statusMessage;
+    private bool isBusy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ReloadUsersAsync();
+        await LoadLoansAsync();
+    }
+
+    private async Task ReloadUsersAsync()
+    {
+        isBusy = true;
+        try
+        {
+            users.Clear();
+            users.AddRange(await Api.GetUsersAsync());
+            selectedUserId = users.FirstOrDefault()?.Id ?? 0;
+        }
+        catch (Exception ex)
+        {
+            statusMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task LoadLoansAsync()
+    {
+        if (selectedUserId == 0)
+            return;
+
+        isBusy = true;
+        statusMessage = null;
+        try
+        {
+            loans.Clear();
+            loans.AddRange(await Api.GetUserLoansAsync(selectedUserId));
+        }
+        catch (Exception ex)
+        {
+            statusMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+}
