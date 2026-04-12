@@ -4,9 +4,11 @@
   </Folder>
   <Folder Name="/Aplication/">
     <Project Path="src/Sigebi.Application/Sigebi.Application.csproj" />
+  </Folder>
+  <Folder Name="/Domain/">
     <Project Path="src/Sigebi.Domain/Sigebi.Domain.csproj" />
   </Folder>
-  <Folder Name="/Persistence/">
+  <Folder Name="/Infrastructure/">
     <Project Path="src/Sigebi.Infrastructure/Sigebi.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Presentation/">
