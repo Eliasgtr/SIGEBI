@@ -10,6 +10,14 @@ namespace Sigebi.Desktop;
 public partial class MainWindow : Window
 {
     private readonly SigebiApiService _api = new();
+    private bool _isBusy;
+
+    private void SetBusy(bool busy)
+    {
+        _isBusy = busy;
+        BusyOverlay.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
+        MainTabs.IsEnabled = !busy;
+    }
 
     public MainWindow()
     {
@@ -19,10 +27,12 @@ public partial class MainWindow : Window
 
     private async Task InitialLoadAsync()
     {
+        SetBusy(true);
         await RefreshBooksGridAsync();
         await RefreshPendingAsync();
         await RefreshActiveLoansAsync();
         await RefreshReportsAsync();
+        SetBusy(false);
     }
 
     private async void OnSearchBooksClick(object sender, RoutedEventArgs e) =>
@@ -30,7 +40,8 @@ public partial class MainWindow : Window
 
     private async Task RefreshBooksGridAsync()
     {
-        var books = await _api.SearchBooksAsync(InventorySearch.Text).ConfigureAwait(true);
+        var query = InventorySearchTab?.Text ?? string.Empty;
+        var books = await _api.SearchBooksAsync(query).ConfigureAwait(true);
         var rows = new List<object>();
         foreach (var b in books)
         {
@@ -90,9 +101,11 @@ public partial class MainWindow : Window
 
     private async Task RefreshPendingAsync()
     {
+        SetBusy(true);
         var list = await _api.GetPendingRequestsAsync().ConfigureAwait(true);
         PendingGrid.ItemsSource = list;
         SetStatus($"Solicitudes pendientes: {list.Count}.");
+        SetBusy(false);
     }
 
     private async void OnApproveClick(object sender, RoutedEventArgs e)
@@ -134,9 +147,11 @@ public partial class MainWindow : Window
 
     private async Task RefreshActiveLoansAsync()
     {
+        SetBusy(true);
         var list = await _api.GetActiveLoansAsync().ConfigureAwait(true);
         ActiveLoansGrid.ItemsSource = list;
         SetStatus($"Préstamos activos: {list.Count}.");
+        SetBusy(false);
     }
 
     private async void OnReturnClick(object sender, RoutedEventArgs e)
@@ -176,11 +191,13 @@ public partial class MainWindow : Window
 
     private async Task RefreshReportsAsync()
     {
+        SetBusy(true);
         var overdue = await _api.GetOverdueAsync().ConfigureAwait(true);
         var penalties = await _api.GetPenaltiesAsync().ConfigureAwait(true);
         OverdueGrid.ItemsSource = overdue;
         PenaltiesGrid.ItemsSource = penalties.Where(p => !p.IsResolved).ToList();
         SetStatus($"Reportes: {overdue.Count} vencidos, {penalties.Count(p => !p.IsResolved)} sanciones abiertas.");
+        SetBusy(false);
     }
 
     private async void OnResolvePenaltyClick(object sender, RoutedEventArgs e)
@@ -205,6 +222,7 @@ public partial class MainWindow : Window
     {
         try
         {
+            SetBusy(true);
             await action().ConfigureAwait(true);
         }
         catch (Exception ex)
@@ -212,5 +230,37 @@ public partial class MainWindow : Window
             SetStatus(ex.Message);
             MessageBox.Show(this, ex.Message, "SIGEBI", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+        finally
+        {
+            SetBusy(false);
+        }
+    }
+
+    private void OnActiveLoansGridDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (ActiveLoansGrid.SelectedItem is ActiveLoanModel loan)
+        {
+            MessageBox.Show(this, $"Préstamo Id: {loan.LoanId}\nUsuario Id: {loan.UserId}\nCódigo inventario: {loan.InventoryCode}\nVence: {loan.DueDate:d}", "Detalle préstamo", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        else
+        {
+            SetStatus("Selecciona un préstamo para ver detalles.");
+        }
+    }
+
+    private async void OnInventorySearchKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Enter)
+            await SafeRunAsync(RefreshBooksGridAsync);
+    }
+
+    private void OnThemeChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        // theme selector removed from UI
+    }
+
+    private void RejectReason_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+
     }
 }

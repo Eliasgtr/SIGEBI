@@ -5,14 +5,213 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="SIGEBI · Escritorio (personal bibliotecario)" Height="760" Width="1120">
-    <DockPanel>
-        <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem>
-                <TextBlock x:Name="StatusText" Text="Listo" />
-            </StatusBarItem>
-        </StatusBar>
-        <TabControl Margin="8">
-            <TabItem Header="Inventario">
+    <Window.Resources>
+        <!-- Palette -->
+        <Color x:Key="AccentColor">#3b82f6</Color>
+        <Color x:Key="AccentDark">#2563eb</Color>
+        <Color x:Key="Surface">#ffffff</Color>
+        <Color x:Key="Background">#f4f6fb</Color>
+        <Color x:Key="Muted">#6b7280</Color>
+        <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+        <SolidColorBrush x:Key="AccentDarkBrush" Color="{StaticResource AccentDark}" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource Surface}" />
+        <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource Background}" />
+        <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource Muted}" />
+
+        <!-- Default window background -->
+        <Style TargetType="Window">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+        </Style>
+
+        <!-- Primary button -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8,2" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource AccentDarkBrush}" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.6" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Secondary (outline) button -->
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#e6e9ef" />
+        </Style>
+
+        <!-- TextBox modern -->
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#e6e9ef" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <!-- DataGrid modern -->
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="RowBackground" Value="#fbfdff" />
+            <Setter Property="AlternatingRowBackground" Value="#f6f8fb" />
+            <Setter Property="GridLinesVisibility" Value="None" />
+            <Setter Property="HorizontalGridLinesBrush" Value="#eef2f6" />
+            <Setter Property="VerticalGridLinesBrush" Value="#eef2f6" />
+            <Setter Property="BorderBrush" Value="#e6e9ef" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="RowHeight" Value="36" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#f3f6fb" />
+            <Setter Property="Foreground" Value="#374151" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="BorderBrush" Value="#e6e9ef" />
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#eef6ff" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#dbeeff" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- GroupBox modern -->
+        <Style TargetType="GroupBox">
+            <Setter Property="BorderBrush" Value="#e6e9ef" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Margin" Value="4" />
+        </Style>
+
+        <!-- StatusBar -->
+        <Style TargetType="StatusBar">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Top toolbar / header card -->
+        <Border Grid.Row="0" Padding="12" Background="{StaticResource SurfaceBrush}" CornerRadius="10" Margin="8" Effect="{x:Null}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="0">
+                    <Ellipse Width="40" Height="40" Fill="{StaticResource AccentBrush}" />
+                    <StackPanel Margin="8,0,0,0">
+                        <TextBlock FontWeight="Bold" Text="SIGEBI" />
+                        <TextBlock FontSize="11" Foreground="{StaticResource MutedBrush}" Text="Administración" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- search box removed from header (kept in Inventario tab) -->
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="2" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource SecondaryButton}" Click="OnRefreshPendingClick">Actualizar</Button>
+                    <Button Style="{StaticResource SecondaryButton}" Click="OnRefreshActiveClick">Reportes</Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main area: modern tab control with left sidebar style -->
+        <TabControl x:Name="MainTabs" Grid.Row="1" Margin="8" TabStripPlacement="Left" Background="Transparent">
+            <TabControl.Resources>
+                <Style TargetType="TabItem" x:Key="SidebarTabItemStyle">
+                    <Setter Property="Padding" Value="12" />
+                    <Setter Property="Margin" Value="6,6,6,6" />
+                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="8">
+                                    <ContentPresenter x:Name="Content" ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#eef6ff" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+                <!-- Make the tab headers area look like a sidebar card -->
+                <Style TargetType="TabControl">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabControl">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="220" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" CornerRadius="10" Padding="12" Margin="0,0,12,0" BorderBrush="#e6e9ef" BorderThickness="1">
+                                        <StackPanel>
+                                            <ItemsPresenter />
+                                        </StackPanel>
+                                    </Border>
+                                    <ContentPresenter Grid.Column="1" ContentSource="SelectedContent" />
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+            <TabItem Style="{StaticResource SidebarTabItemStyle}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16"></TextBlock>
+                        <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" Text="Inventario" />
+                    </StackPanel>
+                </TabItem.Header>
                 <Grid Margin="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -20,10 +219,19 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                        <TextBox x:Name="InventorySearch" Width="280" Margin="0,0,8,0" />
+                        <TextBox x:Name="InventorySearchTab" Width="280" Margin="0,0,8,0" KeyDown="OnInventorySearchKeyDown" />
                         <Button Content="Buscar" Width="100" Click="OnSearchBooksClick" />
                     </StackPanel>
-                    <DataGrid x:Name="BooksGrid" Grid.Row="1" AutoGenerateColumns="True" IsReadOnly="True" />
+                    <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="8" BorderBrush="#e6e9ef" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}" Text="Ejemplares del catálogo" />
+                            <DataGrid x:Name="BooksGrid" Grid.Row="1" AutoGenerateColumns="True" IsReadOnly="True" Margin="0,8,0,0" />
+                        </Grid>
+                    </Border>
                     <GroupBox Grid.Row="2" Header="Alta de libro + primer ejemplar" Margin="0,8,0,0">
                         <Grid Margin="6">
                             <Grid.ColumnDefinitions>
@@ -51,7 +259,13 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Solicitudes">
+            <TabItem Style="{StaticResource SidebarTabItemStyle}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16"></TextBlock>
+                        <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" Text="Solicitudes" />
+                    </StackPanel>
+                </TabItem.Header>
                 <Grid Margin="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -59,15 +273,28 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Button Grid.Row="0" Content="Actualizar" Width="120" HorizontalAlignment="Left" Click="OnRefreshPendingClick" />
-                    <DataGrid x:Name="PendingGrid" Grid.Row="1" Margin="0,8,0,8" AutoGenerateColumns="True" IsReadOnly="True" />
+                    <DataGrid x:Name="PendingGrid" Grid.Row="1" Margin="0,8,0,8" AutoGenerateColumns="True" IsReadOnly="True">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Aprobar" Click="OnApproveClick" />
+                                <MenuItem Header="Rechazar" Click="OnRejectClick" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                    </DataGrid>
                     <StackPanel Grid.Row="2" Orientation="Horizontal">
-                        <TextBox x:Name="RejectReason" Width="360" Margin="0,0,8,0" Text="Motivo de rechazo" />
+                        <TextBox x:Name="RejectReason" Width="360" Margin="0,0,8,0" Text="Motivo de rechazo" TextChanged="RejectReason_TextChanged" />
                         <Button Content="Aprobar seleccionada" Margin="0,0,8,0" Click="OnApproveClick" />
                         <Button Content="Rechazar seleccionada" Click="OnRejectClick" />
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Préstamos / devoluciones">
+            <TabItem Style="{StaticResource SidebarTabItemStyle}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16"></TextBlock>
+                        <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" Text="Préstamos" />
+                    </StackPanel>
+                </TabItem.Header>
                 <Grid Margin="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -76,7 +303,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Button Grid.Row="0" Content="Actualizar préstamos activos" Width="200" HorizontalAlignment="Left" Click="OnRefreshActiveClick" />
-                    <DataGrid x:Name="ActiveLoansGrid" Grid.Row="1" Margin="0,8,0,8" AutoGenerateColumns="True" IsReadOnly="True" />
+                    <DataGrid x:Name="ActiveLoansGrid" Grid.Row="1" Margin="0,8,0,8" AutoGenerateColumns="True" IsReadOnly="True" MouseDoubleClick="OnActiveLoansGridDoubleClick" />
                     <GroupBox Grid.Row="2" Header="Préstamo directo (mostrador)">
                         <StackPanel Orientation="Horizontal" Margin="6">
                             <TextBlock Text="Usuario Id" VerticalAlignment="Center" />
@@ -95,7 +322,13 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Reportes y sanciones">
+            <TabItem Style="{StaticResource SidebarTabItemStyle}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16"></TextBlock>
+                        <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" Text="Reportes" />
+                    </StackPanel>
+                </TabItem.Header>
                 <Grid Margin="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -116,5 +349,22 @@
                 </Grid>
             </TabItem>
         </TabControl>
-    </DockPanel>
+
+        <!-- Status bar -->
+        <StatusBar Grid.Row="2">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="Listo" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <!-- Busy overlay -->
+        <Grid x:Name="BusyOverlay" Visibility="Collapsed" Background="#80000000">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="#ffffff" Padding="20" CornerRadius="8" Width="320">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                    <TextBlock Text="Cargando..." FontWeight="Bold" Margin="0,0,0,8" HorizontalAlignment="Center" />
+                    <ProgressBar IsIndeterminate="True" Width="260" Height="16" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
 </Window>
