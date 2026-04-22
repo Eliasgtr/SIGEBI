@@ -1,0 +1,1 @@
+📚 SIGEBI - Library Management System SIGEBI (Integrated Library Management System) is a software solution designed to manage and automate the core operations of a library. The system provides tools for handling book inventories, user management, loans, and notifications, ensuring an efficient and organized workflow.
